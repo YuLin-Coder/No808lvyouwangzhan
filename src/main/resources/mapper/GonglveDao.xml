@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.GonglveDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.gonglve_name as gonglveName
+        ,a.gonglve_types as gonglveTypes
+        ,a.gonglve_photo as gonglvePhoto
+        ,a.gonglve_content as gonglveContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.GonglveView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM gonglve  a
+
+        <where>
+            <if test=" params.gonglveName != '' and params.gonglveName != null and params.gonglveName != 'null' ">
+                and a.gonglve_name like CONCAT('%',#{params.gonglveName},'%')
+            </if>
+            <if test="params.gonglveTypes != null">
+                and a.gonglve_types = #{params.gonglveTypes}
+            </if>
+            <if test=" params.gonglveContent != '' and params.gonglveContent != null and params.gonglveContent != 'null' ">
+                and a.gonglve_content like CONCAT('%',#{params.gonglveContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.insertTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.insertTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
